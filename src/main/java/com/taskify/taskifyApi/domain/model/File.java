@@ -20,6 +20,8 @@ public class File {
     private Long ownerId;
     private LocalDateTime createdAt;
 
+    private String url;
+
     public double getFileSizeInKb() {
         return fileSize / 1024.0;
     }

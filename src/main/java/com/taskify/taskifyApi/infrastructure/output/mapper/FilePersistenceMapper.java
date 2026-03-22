@@ -11,9 +11,12 @@ import java.util.List;
 public interface FilePersistenceMapper {
 
     @Mapping(target = "ownerId", source = "owner.id")
+    @Mapping(target = "url", ignore = true)
     File toFile(FileEntity fileEntity);
 
     @Mapping(target = "owner.id", source = "ownerId")
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "url", ignore = true)
     FileEntity toFileEntity(File file);
 
     List<File> toFileList(List<FileEntity> fileEntities);
