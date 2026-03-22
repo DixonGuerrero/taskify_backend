@@ -12,4 +12,5 @@ public class FileResponse {
     private String originalName;
     private String extension;
     private Long fileSize;
+    private String url;
 }
