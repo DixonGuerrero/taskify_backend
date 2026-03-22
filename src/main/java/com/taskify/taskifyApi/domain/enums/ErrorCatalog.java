@@ -51,6 +51,12 @@ public enum ErrorCatalog {
     TASK_PRIORITY_INVALID("ERR_TASK_003", "Task priority not valid.", HttpStatus.BAD_REQUEST),
     TASK_INVALID("ERR_TASK_003", "Validation Error: Some fields in the task are invalid or incomplete.", HttpStatus.BAD_REQUEST),
 
+    // Errors of File
+    FILE_NOT_FOUND("ERR_FILE_001", "File not found.", HttpStatus.NOT_FOUND),
+    FILE_UPLOAD_FAILED("ERR_FILE_002", "Failed to upload file to storage.", HttpStatus.INTERNAL_SERVER_ERROR),
+    FILE_DELETE_FAILED("ERR_FILE_003", "Failed to delete file from storage.", HttpStatus.INTERNAL_SERVER_ERROR),
+    FILE_SIZE_LIMIT_EXCEEDED("ERR_FILE_004", "User storage quota exceeded.", HttpStatus.BAD_REQUEST),
+
     // General errors
     GENERIC_ERROR("ERR_GENERIC_001", "An unexpected error occurred.", HttpStatus.INTERNAL_SERVER_ERROR),
     INVALID_FIELDS("ERR_INVALID_FIELDS", "Validation failed for one or more fields.", HttpStatus.BAD_REQUEST);
