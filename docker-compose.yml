@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  taskify_backend:
+    image: taskify_backend:1.0.0
+    container_name: taskify_api_container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      URL_DB: ${URL_DB}
+      USER_DB: ${USER_DB}
+      PASSWORD_DB: ${PASSWORD_DB}
+      FIREBASE_STORAGE_BUCKET: ${FIREBASE_STORAGE_BUCKET}
+      ISSUER_GENERATOR: ${ISSUER_GENERATOR}
+      JWT_KEY_SECRET: ${JWT_KEY_SECRET}
+    ports:
+      - "80:8080"

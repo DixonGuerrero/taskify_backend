@@ -1,0 +1,17 @@
+# ===============================
+# CONFIGURACION DE DESARROLLO
+# ===============================
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+app:
+  cookie:
+    secure: false

@@ -1,0 +1,17 @@
+# ===============================
+# CONFIGURACION DE PRODUCCION
+# ===============================
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+app:
+  cookie:
+    secure: true

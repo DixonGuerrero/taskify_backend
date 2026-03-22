@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: taskifyApi
+
+  jackson:
+    default-property-inclusion: non_null
+    property-naming-strategy: SNAKE_CASE
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${URL_DB}
+    username: ${USER_DB}
+    password: ${PASSWORD_DB}
+
+# COOKIE
+app:
+  cookie:
+    secure: false
+
+# URL FRONTEND
+web:
+  url: ${APP_WEB_URL}
+
+# JWT
+security:
+  jwt:
+    key:
+      secret: ${JWT_KEY_SECRET}
+    issuer:
+      name: ${ISSUER_GENERATOR}
+
+#STORAGE
+storage:
+  type: ${STORAGE_TYPE:minio}
+
+# FIREBASE
+firebase:
+  storage-bucket: ${FIREBASE_STORAGE_BUCKET}
+
+# MINIO STORAGE
+minio:
+  url: ${MINIO_URL}
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
+  bucket: ${MINIO_BUCKET}
+
+# EMAIL
+email:
+  username: ${EMAIL_USERNAME}
+  password: ${EMAIL_PASSWORD}
