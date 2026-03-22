@@ -14,10 +14,12 @@ public interface TaskRestMapper {
 
     @Mapping(target = "project", source = "projectId")
     @Mapping(target = "assigned", source = "assignedId")
+    @Mapping(target = "attachments", ignore = true)
     Task toTask(TaskCreateRequest request);
 
     @Mapping(target = "project", source = "projectId")
     @Mapping(target = "assigned", source = "assignedId")
+    @Mapping(target = "attachments", ignore = true)
     Task toTask(TaskUpdateRequest request);
 
     TaskResponse toTaskResponse(Task task);

@@ -1,15 +1,16 @@
 package com.taskify.taskifyApi.application.service;
 
+import com.taskify.taskifyApi.application.ports.input.FileServicePort;
 import com.taskify.taskifyApi.application.ports.input.TaskServicePort;
+import com.taskify.taskifyApi.application.ports.output.FileStoragePort;
 import com.taskify.taskifyApi.application.ports.output.TaskPersistencePort;
 import com.taskify.taskifyApi.domain.enums.TaskStatus;
 import com.taskify.taskifyApi.domain.exception.task.TaskNotFoundException;
-import com.taskify.taskifyApi.domain.model.Notification;
-import com.taskify.taskifyApi.domain.model.Project;
-import com.taskify.taskifyApi.domain.model.Task;
-import com.taskify.taskifyApi.domain.model.User;
+import com.taskify.taskifyApi.domain.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,42 +26,46 @@ public class TaskService implements TaskServicePort {
     private final ProjectService projectService;
     private final UserService userService;
     private final NotificationService notificationService;
+    private final FileServicePort fileServicePort;
+    private final FileStoragePort fileStoragePort;
 
     @Override
     public Task findById(Long id) {
-        return taskPersistencePort.findById(id)
+        Task task = taskPersistencePort.findById(id)
                 .orElseThrow(TaskNotFoundException::new);
+
+        hydrateAttachments(task);
+        return task;
     }
 
     @Override
     public List<Task> findAllByProjectId(Long projectId) {
-
         projectService.findById(projectId);
-
-        return taskPersistencePort.findAllByProjectId(projectId);
+        List<Task> tasks = taskPersistencePort.findAllByProjectId(projectId);
+        tasks.forEach(this::hydrateAttachments);
+        return tasks;
     }
 
     @Override
     public List<Task> findAllByUserIdAssigned(Long userId) {
-
         userService.findById(userId);
-
-        return taskPersistencePort.findAllByUserIdAssigned(userId);
+        List<Task> tasks = taskPersistencePort.findAllByUserIdAssigned(userId);
+        tasks.forEach(this::hydrateAttachments);
+        return tasks;
     }
 
     @Override
     public List<Task> findAllByProjectIdAndStatus(Long projectId, TaskStatus status) {
         projectService.findById(projectId);
-
-        return taskPersistencePort.findAllByProjectIdAndStatus(projectId, status);
-
+        List<Task> tasks = taskPersistencePort.findAllByProjectIdAndStatus(projectId, status);
+        tasks.forEach(this::hydrateAttachments);
+        return tasks;
     }
 
     @Override
+    @Transactional
     public Task save(Task task) {
-
         applyDefaults(task);
-
         Task taskSaved = taskPersistencePort.save(task);
 
         notificationService.sendNotification(
@@ -74,59 +79,63 @@ public class TaskService implements TaskServicePort {
     }
 
     @Override
+    @Transactional
     public void update(Long id, Task task) {
         taskPersistencePort.findById(id)
                 .ifPresentOrElse(savedTask -> {
+                    savedTask.setName(task.getName());
+                    savedTask.setDescription(task.getDescription());
+                    savedTask.setStatus(task.getStatus());
+                    savedTask.setPriority(task.getPriority());
+                    savedTask.setDueDate(task.getDueDate());
 
-                            savedTask.setName(task.getName());
-                            savedTask.setDescription(task.getDescription());
-                            savedTask.setStatus(task.getStatus());
-                            savedTask.setPriority(task.getPriority());
-                            savedTask.setDueDate(task.getDueDate());
+                    Project projectSelected = projectService.findById(task.getProject().getId());
+                    savedTask.setProject(projectSelected);
 
-                            Project projectSelected = projectService.findById(task.getProject().getId());
+                    User userSelected = userService.findById(task.getAssigned().getId());
+                    savedTask.setAssigned(userSelected);
 
-                            savedTask.setProject(projectSelected);
-
-                            User userSelected = userService.findById(task.getAssigned().getId());
-
-                            savedTask.setAssigned(userSelected);
-
-                            taskPersistencePort.save(savedTask);
-
-
-                        }, () -> {
-                            throw new TaskNotFoundException();
-                        }
-                );
+                    taskPersistencePort.save(savedTask);
+                }, () -> {
+                    throw new TaskNotFoundException();
+                });
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
-
-        if (taskPersistencePort.findById(id).isPresent()) {
-            taskPersistencePort.deleteById(id);
-        } else {
-            throw new TaskNotFoundException();
+        Task task = findById(id);
+        if (task.getAttachments() != null) {
+            task.getAttachments().forEach(file -> fileStoragePort.deleteFile(file.getStorageKey()));
         }
-
+        taskPersistencePort.deleteById(id);
     }
 
-    public void applyDefaults(Task task) {
+    @Transactional
+    public void addAttachment(Long taskId, MultipartFile file) {
+        Task task = findById(taskId);
+        File uploadedFile = fileServicePort.save(file,
+                task.getAssigned().getId());
+        task.getAttachments().add(uploadedFile);
+        taskPersistencePort.save(task);
+    }
 
-        if (task.getStatus() == null) {
-            task.setStatus(PENDING);
+    private void hydrateAttachments(Task task) {
+        if (task.getAttachments() != null) {
+            task.getAttachments().forEach(file -> {
+                try {
+                    file.setUrl(fileStoragePort.getFileUrl(file.getStorageKey()));
+                } catch (Exception e) {
+                    file.setUrl(null);
+                }
+            });
         }
+    }
 
-        if (task.getPriority() == null) {
-            task.setPriority(MEDIUM);
-        }
-
-        if (task.getDueDate() == null) {
-            LocalDateTime dateCurrent = LocalDateTime.now();
-            LocalDateTime dateDue = dateCurrent.plusWeeks(1);
-            task.setDueDate(dateDue);
-        }
+    private void applyDefaults(Task task) {
+        if (task.getStatus() == null) task.setStatus(PENDING);
+        if (task.getPriority() == null) task.setPriority(MEDIUM);
+        if (task.getDueDate() == null) task.setDueDate(LocalDateTime.now().plusWeeks(1));
 
         User assigned = userService.findById(task.getAssigned().getId());
         Project project = projectService.findById(task.getProject().getId());

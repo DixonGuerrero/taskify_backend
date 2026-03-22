@@ -3,6 +3,7 @@ package com.taskify.taskifyApi.infrastructure.input.model.response;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @Getter
@@ -19,5 +20,7 @@ public class TaskResponse {
     private LocalDateTime dueDate;
     private UserResponse assigned;
     private ProjectResponse project;
+
+    private List<FileResponse> attachments;
 
 }
