@@ -46,9 +46,6 @@ public class UserEntity {
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean credentialsNonExpired = true;
 
-    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
-    private List<FileEntity> ownedFiles;
-
     @ManyToOne(targetEntity = ImageEntity.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "image_id")
     @OnDelete(action = OnDeleteAction.CASCADE)

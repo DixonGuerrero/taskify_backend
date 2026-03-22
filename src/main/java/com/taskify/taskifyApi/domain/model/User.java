@@ -27,12 +27,4 @@ public class User {
     private Image image;
     private Role role;
 
-    private List<File> ownedFiles;
-
-    public long getTotalStorageUsed() {
-        if (ownedFiles == null) return 0L;
-        return ownedFiles.stream()
-                .mapToLong(File::getFileSize)
-                .sum();
-    }
 }
