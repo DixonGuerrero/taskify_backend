@@ -8,6 +8,8 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -44,6 +46,9 @@ public class UserEntity {
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean credentialsNonExpired = true;
 
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
+    private List<FileEntity> ownedFiles;
+
     @ManyToOne(targetEntity = ImageEntity.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "image_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -53,6 +58,5 @@ public class UserEntity {
     @JoinColumn (name = "role_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private RoleEntity role;
-
 
 }

@@ -2,13 +2,9 @@ package com.taskify.taskifyApi.infrastructure.output.entity;
 
 import com.taskify.taskifyApi.domain.enums.ProjectStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,7 +27,6 @@ public class ProjectEntity {
     @Column(length = 15)
     private ProjectStatus status;
 
-
     @Column(columnDefinition = "DATE")
     private LocalDateTime dueDate;
 
@@ -52,10 +47,12 @@ public class ProjectEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinTable(
             name = "project_members",
-            joinColumns = @JoinColumn(name = "project_id", foreignKey = @ForeignKey(name = "fk_project")),
-            inverseJoinColumns = @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_user"))
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<UserEntity> members;
 
-
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private List<FileEntity> attachments;
 }

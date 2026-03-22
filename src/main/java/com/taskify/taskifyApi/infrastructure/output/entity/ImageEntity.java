@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -20,11 +19,12 @@ public class ImageEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String url;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "file_id", referencedColumnName = "id")
+    private FileEntity file;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 15)
     private ImageType type;
-
 
 }

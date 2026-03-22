@@ -3,14 +3,11 @@ package com.taskify.taskifyApi.infrastructure.output.entity;
 import com.taskify.taskifyApi.domain.enums.TaskPriority;
 import com.taskify.taskifyApi.domain.enums.TaskStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -46,5 +43,7 @@ public class TaskEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private ProjectEntity project;
 
-
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "task_id")
+    private List<FileEntity> attachments;
 }

@@ -10,8 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Image {
-
     private Long id;
-    private String url;
+    private File file;
     private ImageType type;
 }

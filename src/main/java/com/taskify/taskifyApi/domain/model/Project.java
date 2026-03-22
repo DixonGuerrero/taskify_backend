@@ -2,7 +2,6 @@ package com.taskify.taskifyApi.domain.model;
 
 import com.taskify.taskifyApi.domain.enums.ProjectStatus;
 import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,7 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Project {
-
     private Long id;
     private String name;
     private String description;
@@ -23,5 +21,5 @@ public class Project {
     private User createdBy;
     private Image image;
     private List<User> members;
-
+    private List<File> attachments;
 }
