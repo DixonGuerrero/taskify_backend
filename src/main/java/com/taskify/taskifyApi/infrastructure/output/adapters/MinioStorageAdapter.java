@@ -46,10 +46,7 @@ public class MinioStorageAdapter implements FileStoragePort {
 
             log.info("✅ Archivo subido correctamente: {}", finalFileName);
 
-
-            log.info("✅ Archivo subido correctamente URL: {}",
-                    getFileUrl(finalFileName));
-            return getFileUrl(finalFileName);
+            return finalFileName;
 
         } catch (Exception e) {
             log.error("❌ Error subiendo archivo a MinIO", e);
@@ -80,7 +77,7 @@ public class MinioStorageAdapter implements FileStoragePort {
         }
     }
 
-    public String getFileUrl(String fileName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public String getFileUrl(String fileName) throws InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException, ServerException {
         return minioClient.getPresignedObjectUrl(
                 GetPresignedObjectUrlArgs.builder()
                         .method(io.minio.http.Method.GET)
