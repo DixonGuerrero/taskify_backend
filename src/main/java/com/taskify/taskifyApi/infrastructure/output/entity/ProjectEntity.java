@@ -52,7 +52,4 @@ public class ProjectEntity {
     )
     private List<UserEntity> members;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id")
-    private List<FileEntity> attachments;
 }

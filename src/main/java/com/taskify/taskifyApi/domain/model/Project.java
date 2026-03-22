@@ -21,5 +21,4 @@ public class Project {
     private User createdBy;
     private Image image;
     private List<User> members;
-    private List<File> attachments;
 }
