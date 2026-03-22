@@ -1,7 +1,10 @@
 package com.taskify.taskifyApi.infrastructure.input.controller.rest;
 
 import com.taskify.taskifyApi.application.ports.input.ImageServicePort;
+import com.taskify.taskifyApi.application.ports.input.UserServicePort;
 import com.taskify.taskifyApi.domain.enums.ImageType;
+import com.taskify.taskifyApi.domain.model.Image;
+import com.taskify.taskifyApi.domain.model.User;
 import com.taskify.taskifyApi.infrastructure.input.mapper.ImageRestMapper;
 import com.taskify.taskifyApi.infrastructure.input.model.request.ImageCreateRequest;
 import com.taskify.taskifyApi.infrastructure.input.model.response.ImageResponse;
@@ -9,6 +12,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -21,6 +26,7 @@ import java.util.List;
 public class ImageRestAdapter {
 
     private final ImageServicePort imageService;
+    private final UserServicePort userService;
     @Qualifier("imageRestMapperImpl")
     private final ImageRestMapper mapper;
 
@@ -40,24 +46,28 @@ public class ImageRestAdapter {
     }
 
     @PostMapping(value = "/v1", consumes = {"multipart/form-data"})
-    public ResponseEntity<?> save(@RequestPart("image") MultipartFile file,
-                                  @RequestPart("metadata") @Valid ImageCreateRequest imageCreateRequest) {
+    public ResponseEntity<ImageResponse> save(
+            @RequestPart("image") MultipartFile file,
+            @RequestPart("metadata") @Valid ImageCreateRequest imageCreateRequest) {
 
-        ImageResponse imageSaved = mapper.toImageResponse(
-                imageService.save(
-                        mapper.toImage(imageCreateRequest),
-                        file
-                )
+        User sessionUser = userService.findBySessionUser();
+
+        Image imageSaved = imageService.save(
+                mapper.toImage(imageCreateRequest),
+                file,
+                sessionUser.getId()
         );
+
+        ImageResponse response = mapper.toImageResponse(imageSaved);
 
         return ResponseEntity
                 .created(
                         ServletUriComponentsBuilder.fromCurrentRequest()
                                 .path("/{id}")
-                                .buildAndExpand(imageSaved.getId())
+                                .buildAndExpand(response.getId())
                                 .toUri()
                 )
-                .body(imageSaved);
+                .body(response);
     }
 
     @DeleteMapping("/v1/{id}")
