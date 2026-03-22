@@ -10,6 +10,6 @@ public interface ImageServicePort {
     Image findById(Long id);
     List<Image> findAllByType(ImageType type);
     List<Image> findAll();
-    Image save(Image image, MultipartFile file);
+    Image save(Image image, MultipartFile file, Long ownerId);
     void deleteByID(Long id);
 }

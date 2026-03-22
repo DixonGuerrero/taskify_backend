@@ -1,18 +1,17 @@
 package com.taskify.taskifyApi.application.service;
 
-import com.google.cloud.storage.StorageException;
+import com.taskify.taskifyApi.application.ports.input.FileServicePort;
 import com.taskify.taskifyApi.application.ports.input.ImageServicePort;
-import com.taskify.taskifyApi.application.ports.output.FileStoragePort;
 import com.taskify.taskifyApi.application.ports.output.ImagePersistencePort;
 import com.taskify.taskifyApi.domain.enums.ImageFormat;
 import com.taskify.taskifyApi.domain.enums.ImageType;
 import com.taskify.taskifyApi.domain.exception.image.*;
+import com.taskify.taskifyApi.domain.model.File;
 import com.taskify.taskifyApi.domain.model.Image;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -20,9 +19,9 @@ import java.util.List;
 public class ImageService implements ImageServicePort {
 
     private final ImagePersistencePort persistencePort;
-    private final FileStoragePort fileStoragePort;
+    private final FileServicePort fileServicePort;
 
-    private static final long MAX_FILE_SIZE = (1024 * 1024) / 2;
+    private static final long MAX_FILE_SIZE = 512 * 1024; // 500 KB
 
     @Override
     public Image findById(Long id) {
@@ -41,24 +40,11 @@ public class ImageService implements ImageServicePort {
     }
 
     @Override
-    public Image save(Image image, MultipartFile file) {
-
+    public Image save(Image image, MultipartFile file, Long  ownerId) {
         this.validationsImage(file);
+        File uploadedFile = fileServicePort.save(file, ownerId);
 
-        try {
-
-            String imageUrl = fileStoragePort.uploadFile(
-                    file.getInputStream(),
-                    file.getOriginalFilename(),
-                    file.getContentType()
-            );
-
-            image.setUrl(imageUrl);
-
-
-        } catch (IOException | StorageException e) {
-            throw new ImageUploadFailedException();
-        }
+        image.setFile(uploadedFile);
 
         return persistencePort.save(image);
     }
@@ -66,30 +52,29 @@ public class ImageService implements ImageServicePort {
     @Override
     public void deleteByID(Long id) {
         Image imageStored = this.findById(id);
-        this.fileStoragePort.deleteFile(imageStored.getUrl());
+
+        fileServicePort.deleteById(imageStored.getFile().getId());
+
         persistencePort.deleteByID(id);
     }
 
-    public void validationsImage(MultipartFile file) {
-        if (file.isEmpty()) {
+    private void validationsImage(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
             throw new EmptyImageException();
         }
 
-        if (file.getSize() > MAX_FILE_SIZE ) {
+        if (file.getSize() > MAX_FILE_SIZE) {
             throw new InvalidImageSizeException();
         }
 
         String contentType = file.getContentType();
-        if (contentType == null || !contentType.contains("/")) {
+        if (contentType == null || !contentType.startsWith("image/")) {
             throw new InvalidImageFormatException();
         }
 
         String format = contentType.split("/")[1].toUpperCase();
-
         if (!ImageFormat.isValid(format)) {
-            throw new InvalidImageFormatException("Only image files (e.g., JPEG, PNG, JPG, WEBP) are allowed.");
+            throw new InvalidImageFormatException("Only JPEG, PNG, JPG, and WEBP are allowed.");
         }
-
     }
-
 }

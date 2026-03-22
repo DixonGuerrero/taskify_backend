@@ -1,16 +1,14 @@
 package com.taskify.taskifyApi.infrastructure.input.model.response;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
-@Builder
 @Getter
+@Builder
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class ImageResponse {
-
     private Long id;
-    private String url;
     private String type;
-
+    private FileResponse file;
 }
