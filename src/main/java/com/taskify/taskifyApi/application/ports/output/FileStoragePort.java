@@ -5,5 +5,6 @@ import java.io.InputStream;
 
 public interface FileStoragePort {
     String uploadFile(InputStream fileStream, String fileName, String contentType) throws IOException;
-    void deleteFile(String fileUrl);
+    String getFileUrl(String storageKey) throws Exception;
+    void deleteFile(String storageKey);
 }
