@@ -56,6 +56,7 @@ public enum ErrorCatalog {
     FILE_UPLOAD_FAILED("ERR_FILE_002", "Failed to upload file to storage.", HttpStatus.INTERNAL_SERVER_ERROR),
     FILE_DELETE_FAILED("ERR_FILE_003", "Failed to delete file from storage.", HttpStatus.INTERNAL_SERVER_ERROR),
     FILE_SIZE_LIMIT_EXCEEDED("ERR_FILE_004", "User storage quota exceeded.", HttpStatus.BAD_REQUEST),
+    FILE_URL_GEN_FAILED("ERR_FILE_005", "Failed to generate secure file URL.", HttpStatus.INTERNAL_SERVER_ERROR), // Nuevo
 
     // General errors
     GENERIC_ERROR("ERR_GENERIC_001", "An unexpected error occurred.", HttpStatus.INTERNAL_SERVER_ERROR),

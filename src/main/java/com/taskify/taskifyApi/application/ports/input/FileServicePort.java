@@ -5,7 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface FileServicePort {
-    File findById(Long id) throws Exception;
+    File findById(Long id);
     File save(MultipartFile file, Long ownerId);
     void deleteById(Long id);
 }

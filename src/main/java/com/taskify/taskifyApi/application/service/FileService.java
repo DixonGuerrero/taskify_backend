@@ -5,6 +5,7 @@ import com.taskify.taskifyApi.application.ports.output.FilePersistencePort;
 import com.taskify.taskifyApi.application.ports.output.FileStoragePort;
 import com.taskify.taskifyApi.domain.exception.file.FileNotFoundException;
 import com.taskify.taskifyApi.domain.exception.file.FileUploadFailedException;
+import com.taskify.taskifyApi.domain.exception.file.FileUrlGenerationException;
 import com.taskify.taskifyApi.domain.model.File;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -52,12 +53,16 @@ public class FileService implements FileServicePort {
     }
 
     @Override
-    public File findById(Long id) throws Exception {
+    public File findById(Long id) {
         File file = filePersistencePort.findById(id)
                 .orElseThrow(FileNotFoundException::new);
 
-        file.setUrl(fileStoragePort.getFileUrl(file.getStorageKey()));
-        return file;
+        try {
+            file.setUrl(fileStoragePort.getFileUrl(file.getStorageKey()));
+            return file;
+        } catch (Exception e) {
+            throw new FileUrlGenerationException("File: " + file.getOriginalName(), "Reason: " + e.getMessage());
+        }
     }
 
     @Override
