@@ -55,20 +55,19 @@ public class MinioStorageAdapter implements FileStoragePort {
     }
 
     @Override
-    public void deleteFile(String fileUrl) {
+    public void deleteFile(String finalFileName) {
         try {
-            String objectName = extractObjectName(fileUrl);
 
-            log.info("🗑️ Eliminando archivo de MinIO: {}", objectName);
+            log.info("🗑️ Eliminando archivo de MinIO: {}", finalFileName);
 
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
                             .bucket(minioProperties.getBucket())
-                            .object(objectName)
+                            .object(finalFileName)
                             .build()
             );
 
-            log.info("✅ Archivo eliminado correctamente: {}", objectName);
+            log.info("✅ Archivo eliminado correctamente: {}", finalFileName);
 
         } catch (Exception e) {
             log.error("❌ Error eliminando archivo de MinIO", e);
@@ -116,25 +115,6 @@ public class MinioStorageAdapter implements FileStoragePort {
         }
 
         return UUID.randomUUID() + extension;
-    }
-
-    private String extractObjectName(String fileUrl) {
-        try {
-            String cleanUrl = fileUrl.split("\\?")[0];
-
-            String bucket = minioProperties.getBucket();
-
-            int index = cleanUrl.indexOf(bucket + "/");
-
-            if (index == -1) {
-                throw new IllegalArgumentException("URL inválida: no contiene el bucket");
-            }
-
-            return cleanUrl.substring(index + bucket.length() + 1);
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error extrayendo nombre del archivo desde URL", e);
-        }
     }
 
 
