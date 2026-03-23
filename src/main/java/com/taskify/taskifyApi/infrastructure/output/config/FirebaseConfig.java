@@ -5,6 +5,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.taskify.taskifyApi.infrastructure.config.FirebaseProperties;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "storage.type", havingValue = "firebase")
 @Configuration
 public class FirebaseConfig {
 
