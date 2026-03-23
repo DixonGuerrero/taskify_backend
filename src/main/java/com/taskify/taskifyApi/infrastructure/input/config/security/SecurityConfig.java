@@ -116,9 +116,25 @@ public class SecurityConfig {
                                     .hasAnyRole("ADMIN", "USER");
                             authorizeRequests.requestMatchers(HttpMethod.POST, "/api/tasks/v1")
                                     .hasAnyRole("ADMIN", "USER");
+                            authorizeRequests.requestMatchers(HttpMethod.POST, "/api/tasks/v1/**")
+                                    .hasAnyRole("ADMIN", "USER");
                             authorizeRequests.requestMatchers(HttpMethod.PUT, "/api/tasks/v1/**")
                                     .hasAnyRole("ADMIN", "USER");
                             authorizeRequests.requestMatchers(HttpMethod.DELETE, "/api/tasks/v1/**")
+                                    .hasAnyRole("ADMIN", "USER");
+
+                            /*
+                            Files -> Security
+                            */
+
+                            authorizeRequests.requestMatchers(HttpMethod.GET, "/api/files/v1")
+                                    .hasAnyRole("ADMIN");
+                            authorizeRequests.requestMatchers(HttpMethod.GET, "/api/files/v1/**")
+                                    .hasAnyRole("ADMIN", "USER");
+                            authorizeRequests.requestMatchers(HttpMethod.POST
+                                            , "/api/files/v1/**")
+                                    .hasRole("ADMIN");
+                            authorizeRequests.requestMatchers(HttpMethod.DELETE, "/api/files/v1/**")
                                     .hasAnyRole("ADMIN", "USER");
 
                             authorizeRequests.anyRequest().denyAll();
