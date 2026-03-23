@@ -22,6 +22,8 @@ public interface TaskRestMapper {
     @Mapping(target = "attachments", ignore = true)
     Task toTask(TaskUpdateRequest request);
 
+    Task toTask(Long id);
+
     TaskResponse toTaskResponse(Task task);
 
     List<TaskResponse> toTaskResponseList(List<Task> tasks);

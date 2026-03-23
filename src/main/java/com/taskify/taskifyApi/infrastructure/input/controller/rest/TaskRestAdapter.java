@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
@@ -63,6 +64,26 @@ public class TaskRestAdapter {
                                 .buildAndExpand(
                                         taskSaved.getId()
                                 ).toUri()
+                ).build();
+    }
+
+    @PostMapping(value = "/v1/{id}/add-file", consumes = {"multipart/form" +
+            "-data"})
+    public ResponseEntity<?> addFile(@PathVariable Long id,
+                                     @RequestPart("file") MultipartFile file) {
+
+        TaskResponse task = mapper.toTaskResponse(
+                service.addAttachment(
+                        mapper.toTask(id), file
+                )
+        );
+
+        return ResponseEntity
+                .created(
+                        ServletUriComponentsBuilder.fromCurrentContextPath()
+                                .path("/api/tasks/v1/{id}")
+                                .buildAndExpand(id)
+                                .toUri()
                 ).build();
     }
 

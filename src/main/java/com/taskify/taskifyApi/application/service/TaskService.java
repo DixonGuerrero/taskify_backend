@@ -104,20 +104,25 @@ public class TaskService implements TaskServicePort {
     @Override
     @Transactional
     public void deleteById(Long id) {
-        Task task = findById(id);
-        if (task.getAttachments() != null) {
-            task.getAttachments().forEach(file -> fileStoragePort.deleteFile(file.getStorageKey()));
+        Task task = taskPersistencePort.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException(String.valueOf(id)));
+
+        if (task.getAttachments() != null && !task.getAttachments().isEmpty()) {
+            task.getAttachments().forEach(file -> {
+                fileServicePort.deleteById(file.getId());
+            });
         }
+
         taskPersistencePort.deleteById(id);
     }
 
+    @Override
     @Transactional
-    public void addAttachment(Long taskId, MultipartFile file) {
-        Task task = findById(taskId);
+    public Task addAttachment(Task taskId, MultipartFile file) {
+        Task task = findById(taskId.getId());
         File uploadedFile = fileServicePort.save(file,
-                task.getAssigned().getId());
-        task.getAttachments().add(uploadedFile);
-        taskPersistencePort.save(task);
+                task.getAssigned().getId(), task);
+        return task;
     }
 
     private void hydrateAttachments(Task task) {
