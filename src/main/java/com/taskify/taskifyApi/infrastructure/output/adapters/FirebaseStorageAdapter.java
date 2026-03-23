@@ -72,6 +72,11 @@ public class FirebaseStorageAdapter implements FileStoragePort {
         }
     }
 
+    @Override
+    public String getFileUrl(String storageKey) throws Exception {
+        return getImageUrl(storageKey);
+    }
+
     /**
      * Elimina un archivo (imagen) de Firebase Storage utilizando su URL pública.
      * Este método extrae la ruta del archivo de la URL y luego procede a eliminar el blob
