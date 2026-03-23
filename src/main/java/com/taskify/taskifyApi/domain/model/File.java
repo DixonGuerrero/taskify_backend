@@ -16,11 +16,11 @@ public class File {
     private String storageKey;
     private String extension;
     private Long fileSize;
-    private String bucketName;
     private Long ownerId;
     private LocalDateTime createdAt;
 
     private String url;
+    private Task task;
 
     public double getFileSizeInKb() {
         return fileSize / 1024.0;

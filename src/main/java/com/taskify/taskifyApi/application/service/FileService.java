@@ -7,6 +7,7 @@ import com.taskify.taskifyApi.domain.exception.file.FileNotFoundException;
 import com.taskify.taskifyApi.domain.exception.file.FileUploadFailedException;
 import com.taskify.taskifyApi.domain.exception.file.FileUrlGenerationException;
 import com.taskify.taskifyApi.domain.model.File;
+import com.taskify.taskifyApi.domain.model.Task;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,8 +24,12 @@ public class FileService implements FileServicePort {
 
     @Override
     public File save(MultipartFile file, Long ownerId) {
+        return this.save(file, ownerId, null);
+    }
+
+    @Override
+    public File save(MultipartFile file, Long ownerId, Task task) {
         try {
-            // 1. Subir a MinIO y obtener el nombre generado (storageKey)
             String storageKey = fileStoragePort.uploadFile(
                     file.getInputStream(),
                     file.getOriginalFilename(),
@@ -37,14 +42,13 @@ public class FileService implements FileServicePort {
                     .fileSize(file.getSize())
                     .extension(extractExtension(file.getOriginalFilename()))
                     .ownerId(ownerId)
+                    .task(task)
                     .build();
 
             File savedFile = filePersistencePort.save(fileDomain);
-
             savedFile.setUrl(fileStoragePort.getFileUrl(storageKey));
 
             return savedFile;
-
         } catch (IOException e) {
             throw new FileUploadFailedException();
         } catch (Exception e) {
@@ -63,6 +67,11 @@ public class FileService implements FileServicePort {
         } catch (Exception e) {
             throw new FileUrlGenerationException("File: " + file.getOriginalName(), "Reason: " + e.getMessage());
         }
+    }
+
+    @Override
+    public List<File> findAll() {
+        return filePersistencePort.findAll();
     }
 
     @Override

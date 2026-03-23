@@ -31,13 +31,14 @@ public class FileEntity {
     @Column(nullable = false)
     private Long fileSize;
 
-    @Column(nullable = false)
-    private String bucketName;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private UserEntity owner;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "task_id", nullable = true)
+    private TaskEntity task;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
