@@ -6,6 +6,7 @@ import java.util.Optional;
 
 public interface FilePersistencePort {
     Optional<File> findById(Long id);
+    List<File> findAll();
     File save(File file);
     void deleteById(Long id);
 }

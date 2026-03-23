@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/files")
@@ -28,6 +30,11 @@ public class FileRestAdapter {
     @GetMapping("/v1/{id}")
     public FileResponse findById(@PathVariable Long id) {
         return mapper.toFileResponse(fileService.findById(id));
+    }
+
+    @GetMapping("/v1")
+    public List<FileResponse> findAll() {
+        return mapper.toFileResponseList(fileService.findAll());
     }
 
     @PostMapping(value = "/v1", consumes = {"multipart/form-data"})

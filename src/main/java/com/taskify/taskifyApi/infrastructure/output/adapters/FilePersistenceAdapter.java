@@ -7,6 +7,7 @@ import com.taskify.taskifyApi.infrastructure.output.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -20,6 +21,11 @@ public class FilePersistenceAdapter implements FilePersistencePort {
     public Optional<File> findById(Long id) {
         return repository.findById(id)
                 .map(mapper::toFile);
+    }
+
+    @Override
+    public List<File> findAll() {
+        return mapper.toFileList(repository.findAll());
     }
 
     @Override
