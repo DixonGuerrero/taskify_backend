@@ -18,7 +18,8 @@ public enum ErrorCatalog {
     IMAGE_LOADING_ERROR("ERR_IMAGE_004", "Image loading error.", HttpStatus.INTERNAL_SERVER_ERROR),
     IMAGE_EMPTY("ERR_IMAGE_005", "Image file is empty or not provided.", HttpStatus.BAD_REQUEST),
     IMAGE_UPLOAD_FAILED("ERR_IMAGE_006", "Failed to upload image to storage.", HttpStatus.INTERNAL_SERVER_ERROR),
-    IMAGE_SIZE_INVALID("ERR_IMAGE_007", "Image size exceeds the maximum allowed limit the 500 kB.", HttpStatus.BAD_REQUEST),
+    IMAGE_SIZE_INVALID("ERR_IMAGE_007", "Image size exceeds the maximum " +
+            "allowed limit the 5 mB.", HttpStatus.BAD_REQUEST),
     IMAGE_FORMAT_INVALID("ERR_IMAGE_008", "Invalid image format.", HttpStatus.BAD_REQUEST),
 
 

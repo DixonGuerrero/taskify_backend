@@ -23,7 +23,7 @@ public class ImageService implements ImageServicePort {
     private final FileServicePort fileServicePort;
     private final FileStoragePort fileStoragePort;
 
-    private static final long MAX_FILE_SIZE = 512 * 1024;
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
 
     @Override
     public Image findById(Long id) {
