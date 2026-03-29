@@ -1,6 +1,7 @@
 package com.taskify.taskifyApi.infrastructure.input.controller.rest;
 
 import com.taskify.taskifyApi.application.ports.input.AuthServicePort;
+import com.taskify.taskifyApi.infrastructure.config.AppProperties;
 import com.taskify.taskifyApi.infrastructure.input.mapper.AuthRestMapper;
 import com.taskify.taskifyApi.infrastructure.input.mapper.UserRestMapper;
 import com.taskify.taskifyApi.infrastructure.input.model.request.AuthLoginRequest;
@@ -29,8 +30,7 @@ public class AuthRestAdapter {
     private final UserRestMapper mapper;
     private final AuthRestMapper authMapper;
 
-    @Value("${app.cookie.secure:true}")
-    private boolean cookieSecure;
+    private final AppProperties appProperties;
 
     @PostMapping("/v1/signup")
     public ResponseEntity<AuthResponse> signup(
@@ -75,11 +75,16 @@ public class AuthRestAdapter {
     private void addJwtCookie(String token, HttpServletResponse response) {
         Cookie jwtCookie = new Cookie("jwt", token);
         jwtCookie.setHttpOnly(true);
-        jwtCookie.setSecure(cookieSecure);
+        jwtCookie.setSecure(appProperties.getCookie().isSecure());
         jwtCookie.setPath("/");
-        jwtCookie.setMaxAge(token != null ? 30 * 60 : 0);
-        jwtCookie.setAttribute("SameSite", "Strict");
+        if (token != null) {
+            long durationSeconds = appProperties.getSecurity().getJwtExpirationMs() / 1000;
+            jwtCookie.setMaxAge((int) durationSeconds);
+        } else {
+            jwtCookie.setMaxAge(0);
+        }
 
+        jwtCookie.setAttribute("SameSite", "Strict");
         response.addCookie(jwtCookie);
     }
 }
