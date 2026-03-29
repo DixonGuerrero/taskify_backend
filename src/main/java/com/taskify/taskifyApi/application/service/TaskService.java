@@ -34,7 +34,7 @@ public class TaskService implements TaskServicePort {
         Task task = taskPersistencePort.findById(id)
                 .orElseThrow(TaskNotFoundException::new);
 
-        hydrateAttachments(task);
+        hydrateImagesTask(task);
         return task;
     }
 
@@ -42,7 +42,7 @@ public class TaskService implements TaskServicePort {
     public List<Task> findAllByProjectId(Long projectId) {
         projectService.findById(projectId);
         List<Task> tasks = taskPersistencePort.findAllByProjectId(projectId);
-        tasks.forEach(this::hydrateAttachments);
+        hydrateImagesTask(tasks);
         return tasks;
     }
 
@@ -50,7 +50,7 @@ public class TaskService implements TaskServicePort {
     public List<Task> findAllByUserIdAssigned(Long userId) {
         userService.findById(userId);
         List<Task> tasks = taskPersistencePort.findAllByUserIdAssigned(userId);
-        tasks.forEach(this::hydrateAttachments);
+        hydrateImagesTask(tasks);
         return tasks;
     }
 
@@ -58,7 +58,7 @@ public class TaskService implements TaskServicePort {
     public List<Task> findAllByProjectIdAndStatus(Long projectId, TaskStatus status) {
         projectService.findById(projectId);
         List<Task> tasks = taskPersistencePort.findAllByProjectIdAndStatus(projectId, status);
-        tasks.forEach(this::hydrateAttachments);
+        hydrateImagesTask(tasks);
         return tasks;
     }
 
@@ -123,6 +123,16 @@ public class TaskService implements TaskServicePort {
         File uploadedFile = fileServicePort.save(file,
                 task.getAssigned().getId(), task);
         return task;
+    }
+
+    public void hydrateImagesTask(List<Task> tasks) {
+        tasks.forEach(this::hydrateImagesTask);
+    }
+
+    public void hydrateImagesTask(Task task) {
+        userService.hydrateImageUser(task.getAssigned());
+        projectService.hydrateProjectImages(task.getProject());
+        hydrateAttachments(task);
     }
 
     private void hydrateAttachments(Task task) {

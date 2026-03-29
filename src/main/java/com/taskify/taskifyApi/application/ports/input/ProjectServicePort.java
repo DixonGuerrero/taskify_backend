@@ -18,4 +18,7 @@ public interface ProjectServicePort {
     void update(Long id, Project project);
     void deleteById(Long id);
 
+    void hydrateProjectImages(List<Project> projects);
+    void hydrateProjectImages(Project project);
+
 }

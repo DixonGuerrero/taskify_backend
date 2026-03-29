@@ -69,7 +69,7 @@ public class ImageService implements ImageServicePort {
         fileServicePort.deleteById(imageStored.getFile().getId());
     }
 
-    private void hydrateImage(Image image) {
+    public void hydrateImage(Image image) {
         if (image != null && image.getFile() != null) {
             try {
                 String url = fileStoragePort.getFileUrl(image.getFile().getStorageKey());

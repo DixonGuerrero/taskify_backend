@@ -27,14 +27,20 @@ public class ProjectService implements ProjectServicePort {
 
     @Override
     public Project findById(Long id) {
-        return projectPersistencePort.findById(id)
+        Project project = projectPersistencePort.findById(id)
                 .orElseThrow(ProjectNotFoundException::new);
+
+        hydrateProjectImages(project);
+        return project;
     }
 
     @Override
     public Project findByInviteCode(String inviteCode) {
-        return projectPersistencePort.findByInviteCode(inviteCode)
+        Project project = projectPersistencePort.findByInviteCode(inviteCode)
                 .orElseThrow(() -> new ProjectNotFoundException("Invitation code does not match any project"));
+
+        hydrateProjectImages(project);
+        return project;
     }
 
     @Override
@@ -42,12 +48,16 @@ public class ProjectService implements ProjectServicePort {
 
         userServicePort.findById(id);
 
-        return projectPersistencePort.findByCreatorId(id);
+        List<Project> projects = projectPersistencePort.findByCreatorId(id);
+        hydrateProjectImages(projects);
+        return projects;
     }
 
     @Override
     public List<Project> findAllByIds(List<Long> ids) {
-        return projectPersistencePort.findAllByIds(ids);
+        List<Project> projects = projectPersistencePort.findAllByIds(ids);
+        hydrateProjectImages(projects);
+        return projects;
     }
 
     @Override
@@ -55,12 +65,17 @@ public class ProjectService implements ProjectServicePort {
 
         userServicePort.findById(memberId);
 
-        return projectPersistencePort.findAllByMemberId(memberId);
+        List<Project> projects =
+                projectPersistencePort.findAllByMemberId(memberId);
+        hydrateProjectImages(projects);
+        return projects;
     }
 
     @Override
     public List<Project> findAll() {
-        return projectPersistencePort.findAll();
+        List<Project> projects = projectPersistencePort.findAll();
+        hydrateProjectImages(projects);
+        return projects;
     }
 
     @Override
@@ -140,6 +155,20 @@ public class ProjectService implements ProjectServicePort {
                projectId, memberId
         )){
             throw new UserIsAlreadyMemberException();
+        }
+    }
+
+    @Override
+    public void hydrateProjectImages(List<Project> projects) {
+        projects.forEach(this::hydrateProjectImages);
+    }
+
+    @Override
+    public void hydrateProjectImages(Project project) {
+        imageService.hydrateImage(project.getImage());
+        imageService.hydrateImage(project.getCreatedBy().getImage());
+        if(project.getMembers() != null) {
+            project.getMembers().forEach(member -> imageService.hydrateImage(member.getImage()));
         }
     }
 }

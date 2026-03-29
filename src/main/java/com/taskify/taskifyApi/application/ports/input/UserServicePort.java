@@ -13,4 +13,7 @@ public interface UserServicePort {
     void update(Long id, User user);
     void deleteById(Long id);
 
+    void hydrateImageUser(List<User> users);
+    void hydrateImageUser(User user);
+
 }

@@ -3,6 +3,7 @@ package com.taskify.taskifyApi.application.service;
 import com.taskify.taskifyApi.application.ports.input.ImageServicePort;
 import com.taskify.taskifyApi.application.ports.input.RoleServicePort;
 import com.taskify.taskifyApi.application.ports.input.UserServicePort;
+import com.taskify.taskifyApi.application.ports.output.FileStoragePort;
 import com.taskify.taskifyApi.application.ports.output.UserPersistencePort;
 import com.taskify.taskifyApi.domain.enums.RoleEnum;
 import com.taskify.taskifyApi.domain.exception.user.EmailAlreadyExistsException;
@@ -38,21 +39,29 @@ public class UserService implements UserServicePort, UserDetailsService {
 
     @Override
     public User findById(Long id) {
-        return userPersistencePort.findById(id)
+        User user = userPersistencePort.findById(id)
                 .orElseThrow(UserNotFoundException::new);
+
+        hydrateImageUser(user);
+        return user;
     }
 
 
     @Override
     public User findBySessionUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userPersistencePort.findByUsername(username)
+        User user = userPersistencePort.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("User in session not found: ".concat(username).concat("!")));
+
+        hydrateImageUser(user);
+        return user;
     }
 
     @Override
     public List<User> findAll() {
-        return userPersistencePort.findAll();
+        List<User> users = userPersistencePort.findAll();
+        hydrateImageUser(users);
+        return users;
     }
 
 
@@ -199,6 +208,16 @@ public class UserService implements UserServicePort, UserDetailsService {
 
     private Image getImageForUserDefault(){
         return this.imageService.findAllByType(USER).getFirst();
+    }
+
+    @Override
+    public void hydrateImageUser(List<User> users){
+        users.forEach(this::hydrateImageUser);
+    }
+
+    @Override
+    public void hydrateImageUser(User user) {
+        imageService.hydrateImage(user.getImage());
     }
 
 }

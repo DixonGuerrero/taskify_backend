@@ -12,4 +12,6 @@ public interface ImageServicePort {
     List<Image> findAll();
     Image save(Image image, MultipartFile file, Long ownerId);
     void deleteByID(Long id);
+
+    void hydrateImage(Image image);
 }
