@@ -8,6 +8,7 @@ import io.minio.errors.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -82,7 +83,7 @@ public class MinioStorageAdapter implements FileStoragePort {
                         .method(io.minio.http.Method.GET)
                         .bucket(minioProperties.getBucket())
                         .object(fileName)
-                        .expiry(60 * 60)
+                        .expiry(minioProperties.getUrlExpirationSeconds())
                         .build()
         );
     }

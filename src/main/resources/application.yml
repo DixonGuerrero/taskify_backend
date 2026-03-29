@@ -21,7 +21,9 @@ spring:
 # COOKIE
 app:
   cookie:
-    secure: false
+    secure: ${COOKIE_SECURE:false}
+  security:
+    jwt-expiration-ms: ${JWT_EXPIRATION:86400000}
 
 # URL FRONTEND
 web:
@@ -49,6 +51,7 @@ minio:
   access-key: ${MINIO_ACCESS_KEY}
   secret-key: ${MINIO_SECRET_KEY}
   bucket: ${MINIO_BUCKET}
+  url-expiration-seconds: ${MINIO_URL_EXPIRATION:3600}
 
 # EMAIL
 email:
