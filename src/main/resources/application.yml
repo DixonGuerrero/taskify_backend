@@ -12,6 +12,12 @@ spring:
     username: ${USER_DB}
     password: ${PASSWORD_DB}
 
+#FILE SIZE
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+
 # COOKIE
 app:
   cookie:
