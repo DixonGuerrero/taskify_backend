@@ -43,7 +43,6 @@ public class TaskEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private ProjectEntity project;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "task_id")
+    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<FileEntity> attachments;
 }
