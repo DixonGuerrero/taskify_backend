@@ -6,31 +6,42 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
-import org.springframework.beans.factory.annotation.Value;
+import com.taskify.taskifyApi.infrastructure.config.AppProperties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class JwtUtils {
 
-    @Value("${security.jwt.key.secret}")
-    private String secretKey;
-
-    @Value("${security.jwt.issuer.name}")
-    private String issuer;
-
+    private final AppProperties appProperties;
 
     public String createToken(Authentication authentication) {
+        Algorithm algorithm = Algorithm.HMAC256(appProperties.getSecurity().getJwtKeySecret());
 
-        Algorithm algorithm = Algorithm.HMAC256(this.secretKey);
+        String username;
+        Object principal = authentication.getPrincipal();
 
-        String username = authentication.getPrincipal().toString();
+        if (principal instanceof OAuth2User oAuth2User) {
+            username = oAuth2User.getAttribute("email");
+            if (username == null) {
+                username = oAuth2User.getAttribute("login");
+            }
+        } else if (principal instanceof UserDetails userDetails) {
+            username = userDetails.getUsername();
+        } else {
+            username = Objects.toString(principal, "anonymous");
+        }
 
         String authorities = authentication.getAuthorities()
                 .stream()
@@ -38,11 +49,11 @@ public class JwtUtils {
                 .collect(Collectors.joining(","));
 
         return JWT.create()
-                .withIssuer(this.issuer)
+                .withIssuer(appProperties.getSecurity().getJwtIssuerName())
                 .withSubject(username)
                 .withClaim("authorities", authorities)
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 1800000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + appProperties.getSecurity().getJwtExpirationMs()))
                 .withJWTId(UUID.randomUUID().toString())
                 .withNotBefore(new Date(System.currentTimeMillis()))
                 .sign(algorithm);
@@ -51,10 +62,10 @@ public class JwtUtils {
     public DecodedJWT verifyToken(String token) {
         try {
 
-            Algorithm algorithm = Algorithm.HMAC256(this.secretKey);
+            Algorithm algorithm = Algorithm.HMAC256(appProperties.getSecurity().getJwtKeySecret());
 
             JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer(this.issuer)
+                    .withIssuer(appProperties.getSecurity().getJwtIssuerName())
                     .build();
 
             return verifier.verify(token);

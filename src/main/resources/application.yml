@@ -12,32 +12,48 @@ spring:
     username: ${USER_DB}
     password: ${PASSWORD_DB}
 
-#FILE SIZE
+# FILE SIZE
   servlet:
     multipart:
       enabled: true
       max-file-size: 5MB
 
-# COOKIE
+# AUTHENTICATION
+  security:
+    oauth2:
+      client:
+        registration:
+          # GOOGLE
+          google:
+            client-id: ${GOOGLE_AUTH_ID_CLIENT}
+            client-secret: ${GOOGLE_AUTH_SECRET_CLIENT}
+            scope:
+              - email
+              - profile
+          github:
+            client-id: ${GITHUB_AUTH_ID_CLIENT}
+            client-secret: ${GITHUB_AUTH_SECRET_CLIENT}
+            scope:
+              - read:user
+              - user:email
+
+# SECURITY
 app:
+  # COOKIE
   cookie:
     secure: ${COOKIE_SECURE:false}
+
+  # SECURITY & JWT
   security:
     jwt-expiration-ms: ${JWT_EXPIRATION:86400000}
+    jwt-key-secret: ${JWT_KEY_SECRET}
+    jwt-issuer-name: ${ISSUER_GENERATOR}
 
 # URL FRONTEND
 web:
   url: ${APP_WEB_URL}
 
-# JWT
-security:
-  jwt:
-    key:
-      secret: ${JWT_KEY_SECRET}
-    issuer:
-      name: ${ISSUER_GENERATOR}
-
-#STORAGE
+# STORAGE
 storage:
   type: ${STORAGE_TYPE:minio}
 

@@ -151,9 +151,11 @@ public class UserService implements UserServicePort, UserDetailsService {
                 "ROLE_".concat(user.getRole().getName().name())
         );
 
+        String passwordForSpring = (user.getPassword() != null) ? user.getPassword() : "";
+
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
-                user.getPassword(),
+                passwordForSpring,
                 user.getIsEnabled(),
                 user.getAccountNonExpired(),
                 user.getCredentialsNonExpired(),

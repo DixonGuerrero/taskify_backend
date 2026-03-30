@@ -7,4 +7,5 @@ import com.taskify.taskifyApi.domain.model.User;
 public interface AuthServicePort {
     AuthenticationResult login (AccessCredentials accessCredentials);
     AuthenticationResult signup (User user);
+    void processOAuth2User(User user);
 }

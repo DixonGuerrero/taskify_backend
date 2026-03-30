@@ -5,6 +5,7 @@ import com.taskify.taskifyApi.application.dto.AuthenticationResult;
 import com.taskify.taskifyApi.application.ports.input.AuthServicePort;
 import com.taskify.taskifyApi.application.utils.JwtUtils;
 import com.taskify.taskifyApi.domain.model.User;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -50,6 +51,10 @@ public class AuthService implements AuthServicePort {
             throw new BadCredentialsException("Invalid username or password");
         }
 
+        if (userDetails.getPassword() == null) {
+            throw new BadCredentialsException("This account is linked to an external login (Google/GitHub). Please use that method to log in.");
+        }
+
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new BadCredentialsException("Invalid username or password");
         }
@@ -60,7 +65,8 @@ public class AuthService implements AuthServicePort {
 
     @Override
     public AuthenticationResult signup(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        if(user.getPassword() != null) user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         User userSaved = this.userService.save(user);
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_".concat(user.getRole().getName().name()));
@@ -82,5 +88,15 @@ public class AuthService implements AuthServicePort {
                 true
         );
 
+    }
+
+    @Override
+    @Transactional
+    public void processOAuth2User(User user) {
+        try {
+            userService.loadUserByUsername(user.getUsername());
+        } catch (Exception e) {
+            this.signup(user);
+        }
     }
 }

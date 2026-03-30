@@ -1,9 +1,11 @@
 package com.taskify.taskifyApi.infrastructure.input.config.security;
 
 import com.taskify.taskifyApi.application.utils.JwtUtils;
+import com.taskify.taskifyApi.infrastructure.config.AppProperties;
 import com.taskify.taskifyApi.infrastructure.config.WebProperties;
 import com.taskify.taskifyApi.infrastructure.input.config.security.filter.CustomAuthenticationEntryPoint;
 import com.taskify.taskifyApi.infrastructure.input.config.security.filter.JwtTokenValidator;
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +24,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -35,6 +38,9 @@ public class SecurityConfig {
 
     private final JwtUtils jwtUtils;
     private final WebProperties webProperties;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final PasswordEncoder passwordEncoder;
+    private final AppProperties appProperties;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -54,7 +60,9 @@ public class SecurityConfig {
 
                             authorizeRequests.requestMatchers(
                                     "/api/auth/**",
-                                    "/api/ws/**"
+                                    "/api/ws/**",
+                                    "/login/**",
+                                    "/oauth2/**"
                             ).permitAll();
 
                             /*
@@ -140,6 +148,10 @@ public class SecurityConfig {
                             authorizeRequests.anyRequest().denyAll();
                         }
                 )
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                        .successHandler(oAuth2AuthenticationSuccessHandler())
+                )
                 .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)
                 .build();
     }
@@ -152,15 +164,10 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
+        authenticationProvider.setPasswordEncoder(passwordEncoder);
         authenticationProvider.setUserDetailsService(userDetailsService);
 
         return authenticationProvider;
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
     @Bean
@@ -176,5 +183,33 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
+    }
+
+    @Bean
+    public AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
+        return (request, response, authentication) -> {
+
+            String token = jwtUtils.createToken(authentication);
+
+            Cookie authCookie = new Cookie("jwt", token);
+            authCookie.setHttpOnly(true);
+            authCookie.setSecure(appProperties.getCookie().isSecure());
+            authCookie.setPath("/");
+            if (token != null) {
+                long durationSeconds = appProperties.getSecurity().getJwtExpirationMs() / 1000;
+                authCookie.setMaxAge((int) durationSeconds);
+            } else {
+                authCookie.setMaxAge(0);
+            }
+            authCookie.setAttribute("SameSite", "Strict");
+
+
+            response.addCookie(authCookie);
+
+            String targetUrl = webProperties.getUrl() + "/auth/callback";
+            response.setHeader("Location", targetUrl);
+            response.sendRedirect(targetUrl);
+
+        };
     }
 }

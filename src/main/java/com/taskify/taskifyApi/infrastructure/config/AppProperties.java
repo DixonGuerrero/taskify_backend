@@ -24,5 +24,7 @@ public class AppProperties {
     @Setter
     public static class Security {
         private Long jwtExpirationMs;
+        private String jwtKeySecret;
+        private String jwtIssuerName;
     }
 }
