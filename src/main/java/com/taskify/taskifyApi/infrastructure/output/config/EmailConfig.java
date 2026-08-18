@@ -18,7 +18,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
  * Utiliza Spring para la gestión de dependencias y propiedades.
  */
 @Configuration
-@RequiredArgsConstructor
+@RequiredArgsConstructor    
 public class EmailConfig {
 
     /**
