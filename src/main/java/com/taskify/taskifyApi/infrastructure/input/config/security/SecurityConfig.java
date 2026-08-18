@@ -3,6 +3,7 @@ package com.taskify.taskifyApi.infrastructure.input.config.security;
 import com.taskify.taskifyApi.application.utils.JwtUtils;
 import com.taskify.taskifyApi.infrastructure.config.AppProperties;
 import com.taskify.taskifyApi.infrastructure.config.WebProperties;
+import com.taskify.taskifyApi.infrastructure.input.config.security.filter.CustomAccessDeniedHandler;
 import com.taskify.taskifyApi.infrastructure.input.config.security.filter.CustomAuthenticationEntryPoint;
 import com.taskify.taskifyApi.infrastructure.input.config.security.filter.JwtTokenValidator;
 import jakarta.servlet.http.Cookie;
@@ -54,6 +55,7 @@ public class SecurityConfig {
                         )
                 ).exceptionHandling(
                         ex -> ex.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+                                .accessDeniedHandler(new CustomAccessDeniedHandler())
                 )
                 .authorizeHttpRequests(
                         authorizeRequests -> {
@@ -90,14 +92,14 @@ public class SecurityConfig {
                             Users -> Security
                              */
 
+                            authorizeRequests.requestMatchers(HttpMethod.GET, "/api/users/v1")
+                                    .hasRole("ADMIN");
                             authorizeRequests.requestMatchers(HttpMethod.GET, "/api/users/v1/**")
                                     .hasAnyRole("ADMIN", "USER");
                             authorizeRequests.requestMatchers(HttpMethod.PUT, "/api/users/v1/**")
                                     .hasAnyRole("ADMIN", "USER");
                             authorizeRequests.requestMatchers(HttpMethod.DELETE, "/api/users/v1/**")
                                     .hasAnyRole("ADMIN", "USER");
-                            authorizeRequests.requestMatchers(HttpMethod.GET, "/api/users/v1")
-                                    .hasRole("ADMIN");
 
                             /*
                             Projects -> Security
