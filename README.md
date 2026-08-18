@@ -149,8 +149,10 @@ STORAGE_TYPE=local
 ### 2. Construir
 
 ```bash
-./mvnw clean install
+./mvnw clean install -DskipTests
 ```
+
+> `-DskipTests` porque `mvn install` corre los tests por defecto, y el test de contexto (`TaskifyApiApplicationTests`) necesita una base de datos ya accesible — en este punto todavía no exportaste el `.env`. Es el mismo motivo por el que el `Dockerfile` del proyecto también compila con `-DskipTests`. Para correr los tests de verdad, ver la sección [Tests](#tests) (ahí sí con el `.env` ya cargado).
 
 ### 3. Ejecutar
 
@@ -194,6 +196,8 @@ Ejemplos:
 | Postgres local (instalado en tu máquina) | `jdbc:postgresql://localhost:5432/taskify_db` |
 | Postgres en Docker (`docker run -p 5432:5432 postgres:17`) | `jdbc:postgresql://localhost:5432/taskify_db` |
 | Postgres remoto/managed | `jdbc:postgresql://mi-host.provider.com:5432/taskify_db` |
+
+(Si al conectar contra un servidor remoto ves errores de negociación SSL o timeouts, se puede agregar `?sslmode=<valor>` al final de `URL_DB` — por ejemplo `?sslmode=disable` si el servidor no tiene SSL habilitado, o `?sslmode=require` si lo exige pero no necesitas validar el certificado. Es un parámetro estándar del driver JDBC de PostgreSQL, no algo específico de este proyecto.)
 
 El comportamiento del esquema depende del perfil (`SPRING_PROFILES_ACTIVE`):
 
