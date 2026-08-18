@@ -1,0 +1,24 @@
+# ===============================
+# LOGIN SOCIAL (OPCIONAL)
+# ===============================
+# Este perfil solo se carga si lo agregas explícitamente a
+# SPRING_PROFILES_ACTIVE (ej: "dev,oauth2"). Sin él, la app arranca
+# perfectamente con login por usuario/contraseña únicamente.
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_AUTH_ID_CLIENT}
+            client-secret: ${GOOGLE_AUTH_SECRET_CLIENT}
+            scope:
+              - email
+              - profile
+          github:
+            client-id: ${GITHUB_AUTH_ID_CLIENT}
+            client-secret: ${GITHUB_AUTH_SECRET_CLIENT}
+            scope:
+              - read:user
+              - user:email

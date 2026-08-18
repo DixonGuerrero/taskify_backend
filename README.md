@@ -132,12 +132,6 @@ APP_WEB_URL=http://localhost:4200
 # Cookie del JWT
 COOKIE_SECURE=false
 
-# OAuth2 (obligatorias aunque no vayas a usar login social, ver "Limitaciones conocidas")
-GOOGLE_AUTH_ID_CLIENT=...
-GOOGLE_AUTH_SECRET_CLIENT=...
-GITHUB_AUTH_ID_CLIENT=...
-GITHUB_AUTH_SECRET_CLIENT=...
-
 # Email (solo binding de config; ver "Limitaciones conocidas")
 EMAIL_USERNAME=...
 EMAIL_PASSWORD=...
@@ -253,8 +247,12 @@ Listo. Al arrancar, la carpeta se crea sola y los archivos subidos quedan accesi
 
 ## Autenticación
 
-- **Password:** `POST /api/auth/v1/signup` y `POST /api/auth/v1/login` con `{ "username", "password" }`. Devuelven un JWT.
-- **OAuth2:** flujo estándar de Spring Security en `/oauth2/authorization/google` y `/oauth2/authorization/github` — crea el usuario automáticamente en el primer login si no existe.
+- **Password:** `POST /api/auth/v1/signup` y `POST /api/auth/v1/login` con `{ "username", "password" }`. Devuelven un JWT. Funciona siempre, sin configuración adicional.
+- **OAuth2 (opcional):** login social con Google y GitHub en `/oauth2/authorization/google` y `/oauth2/authorization/github` — crea el usuario automáticamente en el primer login si no existe. Está desactivado por defecto; para activarlo:
+  1. Agrega `GOOGLE_AUTH_ID_CLIENT`, `GOOGLE_AUTH_SECRET_CLIENT`, `GITHUB_AUTH_ID_CLIENT`, `GITHUB_AUTH_SECRET_CLIENT` a tu `.env`.
+  2. Suma el perfil `oauth2` a `SPRING_PROFILES_ACTIVE`, por ejemplo: `SPRING_PROFILES_ACTIVE=dev,oauth2`.
+
+  Sin el perfil `oauth2` activo, esas rutas simplemente no existen (la app arranca igual y el login por password no se ve afectado). El registro de clientes vive en `src/main/resources/application-oauth2.yml`, separado a propósito del resto de la config para que nunca sea un requisito de arranque.
 - **Cómo enviar el token:** depende del header `X-Client-Type`:
   - `X-Client-Type: WEB` (o ausente) → el JWT se setea como cookie `httpOnly` llamada `jwt`.
   - `X-Client-Type: DESKTOP` → el JWT se espera en `Authorization: Bearer <token>`.
@@ -295,7 +293,6 @@ Usa el `.env` de la raíz automáticamente (`env_file: .env`) y expone la API en
 
 Transparencia sobre el estado actual del proyecto:
 
-- **OAuth2 es obligatorio en el arranque aunque no lo uses:** `GOOGLE_AUTH_ID_CLIENT/SECRET` y `GITHUB_AUTH_ID_CLIENT/SECRET` no tienen valor por defecto — si faltan, el contexto de Spring no arranca (falla la autoconfiguración de `spring-boot-starter-oauth2-client`), aunque solo pienses usar login por password.
 - **Email configurado pero no usado:** `EMAIL_USERNAME`/`EMAIL_PASSWORD` son obligatorias por el *binding* de `EmailProperties`, pero ningún caso de uso actual envía correos todavía (el bean `JavaMailSender` existe, no está conectado a ninguna funcionalidad).
 - **Cobertura de tests limitada:** por ahora hay tests unitarios solo para el adaptador de storage local; el resto del negocio (services, controllers) no tiene tests automatizados aún.
 - **Autorización basada en rol, no en pertenencia:** los endpoints validan rol (`ADMIN`/`USER`) pero no verifican si el usuario autenticado es dueño/miembro del recurso que está editando (proyecto, tarea). Tenerlo en cuenta si vas a exponer esto fuera de un entorno de confianza.

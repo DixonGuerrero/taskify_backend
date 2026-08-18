@@ -18,25 +18,6 @@ spring:
       enabled: true
       max-file-size: 5MB
 
-# AUTHENTICATION
-  security:
-    oauth2:
-      client:
-        registration:
-          # GOOGLE
-          google:
-            client-id: ${GOOGLE_AUTH_ID_CLIENT}
-            client-secret: ${GOOGLE_AUTH_SECRET_CLIENT}
-            scope:
-              - email
-              - profile
-          github:
-            client-id: ${GITHUB_AUTH_ID_CLIENT}
-            client-secret: ${GITHUB_AUTH_SECRET_CLIENT}
-            scope:
-              - read:user
-              - user:email
-
 # SECURITY
 app:
   # COOKIE
