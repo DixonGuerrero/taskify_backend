@@ -6,6 +6,7 @@ import com.taskify.taskifyApi.application.ports.input.UserServicePort;
 import com.taskify.taskifyApi.application.ports.output.FileStoragePort;
 import com.taskify.taskifyApi.application.ports.output.UserPersistencePort;
 import com.taskify.taskifyApi.domain.enums.RoleEnum;
+import com.taskify.taskifyApi.domain.exception.image.ImageNotFoundException;
 import com.taskify.taskifyApi.domain.exception.user.EmailAlreadyExistsException;
 import com.taskify.taskifyApi.domain.exception.user.UserNotFoundException;
 import com.taskify.taskifyApi.domain.exception.user.UsernameAlreadyExistsException;
@@ -209,7 +210,10 @@ public class UserService implements UserServicePort, UserDetailsService {
     }
 
     private Image getImageForUserDefault(){
-        return this.imageService.findAllByType(USER).getFirst();
+        return this.imageService.findAllByType(USER)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new ImageNotFoundException("No default USER image is configured"));
     }
 
     @Override
