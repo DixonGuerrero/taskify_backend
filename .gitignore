@@ -41,3 +41,6 @@ build/
 ### Data test ###
 /src/main/resources/*.sql
 
+### Local storage (dev) ###
+/storage-data/
+
