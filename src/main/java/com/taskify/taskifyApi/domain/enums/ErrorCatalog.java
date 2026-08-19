@@ -61,7 +61,8 @@ public enum ErrorCatalog {
 
     // General errors
     GENERIC_ERROR("ERR_GENERIC_001", "An unexpected error occurred.", HttpStatus.INTERNAL_SERVER_ERROR),
-    INVALID_FIELDS("ERR_INVALID_FIELDS", "Validation failed for one or more fields.", HttpStatus.BAD_REQUEST);
+    INVALID_FIELDS("ERR_INVALID_FIELDS", "Validation failed for one or more fields.", HttpStatus.BAD_REQUEST),
+    RESOURCE_NOT_FOUND("ERR_GENERIC_002", "The requested resource was not found.", HttpStatus.NOT_FOUND);
 
     private final String code;
     private final String message;

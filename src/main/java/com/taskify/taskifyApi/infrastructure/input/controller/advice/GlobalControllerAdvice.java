@@ -11,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -75,6 +76,17 @@ public class GlobalControllerAdvice {
                                         fieldError.getDefaultMessage()))
                                 .toList()
                 )
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ErrorResponse handleNoResourceFound(NoResourceFoundException ex) {
+        return ErrorResponse.builder()
+                .code(RESOURCE_NOT_FOUND.getCode())
+                .message(RESOURCE_NOT_FOUND.getMessage())
+                .timestamp(LocalDateTime.now())
+                .details(Collections.singletonList("The requested resource was not found."))
                 .build();
     }
 
